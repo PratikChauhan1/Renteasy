@@ -1,0 +1,187 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  TENANT
+}
+
+enum RentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  UNDER_VERIFICATION
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum UnitType {
+  ROOM
+  HOUSE
+}
+
+model User {
+  id                    String         @id @default(uuid())
+  email                 String         @unique
+  password              String
+  name                  String
+  phone                 String?
+  role                  Role
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  ownerProfile          OwnerProfile?
+  tenantProfile         TenantProfile?
+  sentNotifications     Notification[] @relation("SentNotifications")
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+}
+
+model OwnerProfile {
+  id         String     @id @default(uuid())
+  userId     String     @unique
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  upiId      String?
+  upiName    String?
+  upiQrCode  String?
+  properties Property[]
+}
+
+model TenantProfile {
+  id         String       @id @default(uuid())
+  userId     String       @unique
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId     String?
+  room       Room?        @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  rentCycles RentCycle[]
+  payments   Payment[]
+  complaints Complaint[]
+  documents  Document[]
+}
+
+model Property {
+  id            String         @id @default(uuid())
+  name          String
+  address       String
+  ownerId       String
+  owner         OwnerProfile   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  rooms         Room[]
+  announcements Announcement[]
+  createdAt     DateTime       @default(now())
+}
+
+model Room {
+  id              String          @id @default(uuid())
+  number          String
+  propertyId      String
+  property        Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  capacity        Int             @default(1)
+  baseRent        Float
+  securityDeposit Float           @default(0)
+  type            UnitType        @default(ROOM)
+  tenants         TenantProfile[]
+  inviteCode      String?         @unique
+  createdAt       DateTime        @default(now())
+}
+
+model RentCycle {
+  id              String        @id @default(uuid())
+  tenantId        String
+  tenant          TenantProfile @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  billingMonth    String        // e.g. "2026-07"
+  baseRent        Float
+  securityDeposit Float         @default(0)
+  electricity     Float         @default(0)
+  water           Float         @default(0)
+  motorCharge     Float         @default(0)
+  internet        Float         @default(0)
+  cleaning        Float         @default(0)
+  otherBills      Float         @default(0)
+  otherBillsNotes String?
+  customCharges   Json?         // e.g. [{ label: 'Internet', amount: 500 }]
+  totalAmount     Float
+  status          RentStatus    @default(PENDING)
+  dueDate         DateTime
+  payments        Payment[]
+  createdAt       DateTime      @default(now())
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  rentCycleId     String
+  rentCycle       RentCycle     @relation(fields: [rentCycleId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          TenantProfile @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  amount          Float
+  transactionId   String
+  screenshotUrl   String?
+  status          PaymentStatus @default(PENDING)
+  rejectionReason String?
+  paidAt          DateTime      @default(now())
+  verifiedAt      DateTime?
+}
+
+model Complaint {
+  id             String          @id @default(uuid())
+  tenantId       String
+  tenant         TenantProfile   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  category       String
+  urgency        Urgency         @default(LOW)
+  status         ComplaintStatus @default(PENDING)
+  resolutionNote String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Announcement {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+}
+
+model Document {
+  id         String        @id @default(uuid())
+  tenantId   String
+  tenant     TenantProfile @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name       String
+  fileUrl    String
+  uploadedAt DateTime      @default(now())
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  senderId   String?
+  sender     User?    @relation("SentNotifications", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("ReceivedNotifications", fields: [receiverId], references: [id], onDelete: Cascade)
+  title      String
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
