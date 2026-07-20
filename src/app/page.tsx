@@ -101,45 +101,6 @@ export default function LandingPage() {
             )}
           </div>
         </div>
-
-        {/* Features Grid */}
-        {/* <section className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 animate-fade-in-up animate-delay-100">
-          <div className="glass-panel glass-panel-hover p-8 rounded-2xl text-left flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 mb-6 border border-purple-500/20">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Multi-Property & Room Setup</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">
-                Add properties and configure rooms with custom pricing, amenities, and capacity limits. Generate secure room invite codes to easily onboard new tenants.
-              </p>
-            </div>
-          </div>
-
-          <div className="glass-panel glass-panel-hover p-8 rounded-2xl text-left flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Direct UPI QR Billing</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">
-                Configure owner UPI credentials to display instant QR payments for tenants. Tenants copy UPI IDs or scan and upload UTR/screenshot proofs for manual verification.
-              </p>
-            </div>
-          </div>
-
-          <div className="glass-panel glass-panel-hover p-8 rounded-2xl text-left flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-400 mb-6 border border-pink-500/20">
-                <ClipboardList className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Ledger, Receipts & Tickets</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">
-                Maintain property financial ledger and analytics charts. Approve payments to generate printable PDF receipts, and resolve tenant maintenance complaints quickly.
-              </p>
-            </div>
-          </div>
-        </section> */}
       </main>
 
       {/* Footer */}

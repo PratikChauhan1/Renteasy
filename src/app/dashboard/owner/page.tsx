@@ -4,43 +4,43 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import jsQR from 'jsqr';
-import { 
-  Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, Settings, 
+import {
+  Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, Settings,
   LogOut, Bell, Plus, Check, X, Copy, FileText, Upload, User, IndianRupee,
   Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, TrendingUp, Sparkles, CheckCircle2, Clock, Loader2, Menu
 } from 'lucide-react';
 
 export default function OwnerDashboard() {
   const router = useRouter();
-  
+
   // Authentication & Navigation state
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Data lists
   const [properties, setProperties] = useState<any[]>([]);
   const [rentCycles, setRentCycles] = useState<any[]>([]);
   const [complaints, setComplaints] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
-  
+
   // Loaders
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
-  
+
   // Form states
   const [newPropName, setNewPropName] = useState('');
   const [newPropAddress, setNewPropAddress] = useState('');
-  
+
   const [selectedPropertyId, setSelectedPropertyId] = useState('');
   const [newRoomNumber, setNewRoomNumber] = useState('');
   const [newRoomCapacity, setNewRoomCapacity] = useState('1');
   const [newRoomRent, setNewRoomRent] = useState('');
   const [newRoomSecurityDeposit, setNewRoomSecurityDeposit] = useState('0');
   const [newRoomType, setNewRoomType] = useState<'ROOM' | 'HOUSE'>('ROOM');
-  
+
   const [selectedRoomId, setSelectedRoomId] = useState('');
   const [rentMonth, setRentMonth] = useState('2026-07');
   const [elecBill, setElecBill] = useState('0');
@@ -53,16 +53,16 @@ export default function OwnerDashboard() {
   const [otherNotes, setOtherNotes] = useState('');
   const [customBills, setCustomBills] = useState<any[]>([]);
   const [dueDate, setDueDate] = useState('2026-07-25');
-  
+
   const [announcementPropId, setAnnouncementPropId] = useState('');
   const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementContent, setAnnouncementContent] = useState('');
-  
+
   const [upiId, setUpiId] = useState('');
   const [upiName, setUpiName] = useState('');
   const [upiQrFile, setUpiQrFile] = useState<File | null>(null);
   const [upiQrUrl, setUpiQrUrl] = useState('');
-  
+
   const [complaintResolveId, setComplaintResolveId] = useState('');
   const [complaintResolveStatus, setComplaintResolveStatus] = useState('RESOLVED');
   const [complaintResolveNote, setComplaintResolveNote] = useState('');
@@ -170,7 +170,7 @@ export default function OwnerDashboard() {
   const handleCreateProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPropName || !newPropAddress) return;
-    
+
     try {
       const res = await fetch('/api/owner/properties', {
         method: 'POST',
@@ -191,7 +191,7 @@ export default function OwnerDashboard() {
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPropertyId || !newRoomNumber || !newRoomRent) return;
-    
+
     try {
       const res = await fetch('/api/owner/rooms', {
         method: 'POST',
@@ -341,7 +341,7 @@ export default function OwnerDashboard() {
         if (!ctx) return;
         ctx.drawImage(img, 0, 0);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
+
         try {
           const code = jsQR(imageData.data, imageData.width, imageData.height);
           if (code) {
@@ -391,7 +391,7 @@ export default function OwnerDashboard() {
       alert('Please enter a rejection reason.');
       return;
     }
-    
+
     try {
       const res = await fetch('/api/owner/verify-payment', {
         method: 'POST',
@@ -641,11 +641,10 @@ export default function OwnerDashboard() {
           <span className="font-extrabold text-white text-base">
             {room.type === 'HOUSE' ? `🏡 House ${room.number}` : `🚪 Room ${room.number}`}
           </span>
-          <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
-            room.tenants.length === 0 
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+          <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${room.tenants.length === 0
+              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
               : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-          }`}>
+            }`}>
             {room.tenants.length === 0 ? 'Vacant' : `Occupied (${room.tenants.length}/${room.capacity})`}
           </span>
         </div>
@@ -678,7 +677,7 @@ export default function OwnerDashboard() {
           </p>
           <p className="flex justify-between">
             <span>Capacity:</span>
-            <span className="text-white">{room.capacity} sharing</span>
+            <span className="text-white">{room.type === 'HOUSE' ? 'Entire Unit / House' : `${room.capacity} sharing`}</span>
           </p>
         </div>
 
@@ -750,33 +749,30 @@ export default function OwnerDashboard() {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'overview'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'overview'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <LayoutDashboard className="w-5 h-5" /> Overview
           </button>
-          
+
           <button
             onClick={() => setActiveTab('properties')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'properties'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'properties'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <Building2 className="w-5 h-5" /> Properties & Rooms
           </button>
 
           <button
             onClick={() => setActiveTab('billing')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'billing'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'billing'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <span className="flex items-center gap-3">
               <Receipt className="w-5 h-5" /> Rent & Verifications
@@ -790,11 +786,10 @@ export default function OwnerDashboard() {
 
           <button
             onClick={() => setActiveTab('complaints')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'complaints'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'complaints'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <span className="flex items-center gap-3">
               <AlertTriangle className="w-5 h-5" /> Complaints
@@ -808,22 +803,20 @@ export default function OwnerDashboard() {
 
           <button
             onClick={() => setActiveTab('announcements')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'announcements'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'announcements'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <Megaphone className="w-5 h-5" /> Announcements
           </button>
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'settings'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'settings'
                 ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/10'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <Settings className="w-5 h-5" /> UPI Payment Settings
           </button>
@@ -880,26 +873,26 @@ export default function OwnerDashboard() {
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-80 glass-panel border border-white/10 rounded-2xl shadow-2xl p-4 z-50 text-left">
-                  <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Notifications</span>
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-[#121215] border border-purple-500/30 rounded-2xl shadow-2xl p-4 z-50 text-left animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">Notifications</span>
                     <button
                       onClick={() => setNotifications([])}
-                      className="text-[10px] text-zinc-500 hover:text-white font-medium"
+                      className="text-[10px] text-zinc-400 hover:text-white font-semibold cursor-pointer"
                     >
-                      Clear
+                      Clear All
                     </button>
                   </div>
-                  <div className="max-h-60 overflow-y-auto space-y-3">
+                  <div className="max-h-72 overflow-y-auto space-y-2.5 pr-1">
                     {notifications.length === 0 ? (
-                      <p className="text-xs text-zinc-500 text-center py-4">No notifications.</p>
+                      <p className="text-xs text-zinc-400 text-center py-6">No new notifications.</p>
                     ) : (
                       notifications.map((n) => (
-                        <div key={n.id} className="p-2.5 rounded-xl bg-white/5 text-xs">
-                          <p className="font-semibold text-white mb-0.5">{n.title}</p>
-                          <p className="text-zinc-400 leading-normal">{n.message}</p>
-                          <span className="text-[9px] text-zinc-650 mt-1 block">
-                            {new Date(n.createdAt).toLocaleDateString('en-IN')}
+                        <div key={n.id} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1">
+                          <p className="font-bold text-white text-xs leading-snug">{n.title}</p>
+                          <p className="text-zinc-300 text-xs leading-relaxed">{n.message}</p>
+                          <span className="text-[10px] text-purple-300 font-mono mt-1 block">
+                            {new Date(n.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       ))
@@ -935,25 +928,22 @@ export default function OwnerDashboard() {
         <div className="md:hidden flex items-center justify-around bg-zinc-950/90 border-b border-white/5 p-2 sticky top-[57px] z-30 backdrop-blur-md text-xs font-semibold">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
-            }`}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+              }`}
           >
             <LayoutDashboard className="w-4 h-4" /> Overview
           </button>
           <button
             onClick={() => setActiveTab('properties')}
-            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'properties' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
-            }`}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${activeTab === 'properties' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+              }`}
           >
             <Building2 className="w-4 h-4" /> House & Rooms
           </button>
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${
-              activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
-            }`}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+              }`}
           >
             <Receipt className="w-4 h-4" /> Rent & Bills
             {stats.pendingVerificationCount > 0 && (
@@ -1053,7 +1043,7 @@ export default function OwnerDashboard() {
 
         {/* Dashboard Panels */}
         <main className="flex-1 p-6 overflow-y-auto relative">
-          
+
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-fade-in-up">
@@ -1114,7 +1104,7 @@ export default function OwnerDashboard() {
 
               {/* Double Column Overview */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Properties Quickview */}
                 <div className="glass-panel p-6 rounded-2xl lg:col-span-2">
                   <div className="flex items-center justify-between mb-4">
@@ -1128,7 +1118,7 @@ export default function OwnerDashboard() {
                       Manage
                     </button>
                   </div>
-                  
+
                   {properties.length === 0 ? (
                     <div className="py-12 text-center text-zinc-500">
                       <Building2 className="w-12 h-12 mx-auto mb-3 opacity-20" />
@@ -1169,8 +1159,8 @@ export default function OwnerDashboard() {
                   ) : (
                     <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                       {allTenantsList.map((t) => (
-                        <Link 
-                          key={t.id} 
+                        <Link
+                          key={t.id}
                           href={`/dashboard/owner/tenant/${t.id}`}
                           className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs flex justify-between items-center hover:bg-white/10 hover:border-purple-550/20 transition-all cursor-pointer block"
                         >
@@ -1193,7 +1183,7 @@ export default function OwnerDashboard() {
           {/* TAB 2: PROPERTIES & ROOMS */}
           {activeTab === 'properties' && (
             <div className="space-y-8 animate-fade-in-up">
-              
+
               {/* Form Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Create Property Form */}
@@ -1255,7 +1245,7 @@ export default function OwnerDashboard() {
                         ))}
                       </select>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-zinc-400 mb-1.5">
@@ -1307,11 +1297,10 @@ export default function OwnerDashboard() {
                           onClick={() => {
                             setNewRoomType('ROOM');
                           }}
-                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                            newRoomType === 'ROOM'
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${newRoomType === 'ROOM'
                               ? 'bg-purple-600 text-white shadow shadow-purple-500/10'
                               : 'text-zinc-400 hover:text-white'
-                          }`}
+                            }`}
                         >
                           🚪 Room Rent (Shared PG)
                         </button>
@@ -1321,11 +1310,10 @@ export default function OwnerDashboard() {
                             setNewRoomType('HOUSE');
                             setNewRoomCapacity('1');
                           }}
-                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                            newRoomType === 'HOUSE'
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${newRoomType === 'HOUSE'
                               ? 'bg-purple-600 text-white shadow shadow-purple-500/10'
                               : 'text-zinc-400 hover:text-white'
-                          }`}
+                            }`}
                         >
                           🏡 House Rent (Entire Unit)
                         </button>
@@ -1418,113 +1406,103 @@ export default function OwnerDashboard() {
           {/* TAB 3: RENT & VERIFICATIONS */}
           {activeTab === 'billing' && (
             <div className="space-y-8 animate-fade-in-up">
-                
-                {/* Double Column forms/queues */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
-                  {/* Generate Rent Invoice */}
-                  <div className="glass-panel p-6 rounded-2xl lg:col-span-1 h-fit">
-                    <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-                      <Receipt className="w-5 h-5 text-purple-500" /> Generate Rent Bill
-                    </h3>
-                    <form onSubmit={handleGenerateRent} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Select Occupied Room / House</label>
-                        <select
-                          required
-                          value={selectedRoomId}
-                          onChange={(e) => setSelectedRoomId(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-purple-550 text-sm cursor-pointer"
-                        >
-                          <option value="">-- Choose Room/House --</option>
-                          {allOccupiedRooms.map((r) => (
-                            <option key={r.id} value={r.id}>
-                              {r.type === 'HOUSE' ? '🏡' : '🚪'} {r.propertyName} - Room {r.number} ({r.roommateCount} residents)
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {selectedRoom && (
-                        <div className="text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-550/20 p-3 rounded-xl animate-fade-in-up leading-relaxed space-y-1">
-                          <p className="font-bold flex items-center gap-1">👤 Active Residents:</p>
-                          <p className="text-white font-semibold">{selectedRoom.tenantsList}</p>
-                          {selectedRoom.type === 'ROOM' && selectedRoom.roommateCount > 1 && (
-                            <p className="mt-1.5 text-zinc-450 text-[10px]">
-                              Utility bills entered below will be divided by {selectedRoom.roommateCount} roommates automatically on submission.
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Billing Month</label>
-                        <input
-                          type="month"
-                          required
-                          value={rentMonth}
-                          onChange={(e) => setRentMonth(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-purple-500 text-sm cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Due Date</label>
-                        <input
-                          type="date"
-                          required
-                          value={dueDate}
-                          onChange={(e) => setDueDate(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-purple-500 text-sm cursor-pointer"
-                        />
-                      </div>
+              {/* Centered Generate Rent Invoice Form */}
+              <div className="max-w-2xl mx-auto">
+                <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl">
+                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
+                    <Receipt className="w-6 h-6 text-purple-500" /> Generate Monthly Rent Bill
+                  </h3>
+                  <form onSubmit={handleGenerateRent} className="space-y-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Select Occupied Room / House</label>
+                      <select
+                        required
+                        value={selectedRoomId}
+                        onChange={(e) => setSelectedRoomId(e.target.value)}
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-purple-500 text-sm cursor-pointer"
+                      >
+                        <option value="">-- Choose Room/House --</option>
+                        {allOccupiedRooms.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.type === 'HOUSE' ? '🏡' : '🚪'} {r.propertyName} - Room {r.number} ({r.roommateCount} residents)
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    <div className="border-t border-white/5 pt-3 space-y-3">
-                      <p className="text-xs font-bold text-zinc-400">Additional Utilities (₹)</p>
-                      
+                    {selectedRoom && (
+                      <div className="text-xs text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 p-3.5 rounded-xl animate-fade-in-up leading-relaxed space-y-1">
+                        <p className="font-bold flex items-center gap-1">👤 Active Residents:</p>
+                        <p className="text-white font-semibold">{selectedRoom.tenantsList}</p>
+                        {selectedRoom.type === 'ROOM' && selectedRoom.roommateCount > 1 && (
+                          <p className="mt-1.5 text-zinc-400 text-[11px]">
+                            Utility bills entered below will be divided by {selectedRoom.roommateCount} roommates automatically on submission.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Select Billing Month</label>
+                      <input
+                        type="month"
+                        required
+                        value={rentMonth}
+                        onChange={(e) => setRentMonth(e.target.value)}
+                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white focus:outline-none focus:border-purple-500 text-sm cursor-pointer"
+                      />
+                      {rentMonth && (
+                        <p className="text-[11px] text-purple-300 font-mono mt-1.5 flex items-center gap-1">
+                          📅 Billing Period: Full Calendar Month ({rentMonth}-01 to {rentMonth}-31)
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="border-t border-white/10 pt-4 space-y-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-purple-400">Additional Utilities & Charges (₹)</p>
+
                       <div>
-                        <label className="block text-[10px] text-zinc-500 mb-1">Electricity Bill (Total)</label>
+                        <label className="block text-xs text-zinc-400 mb-1">Electricity Bill (Total Amount)</label>
                         <input
                           type="number"
                           value={elecBill}
                           onChange={(e) => setElecBill(e.target.value)}
-                          className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                          className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                         />
                       </div>
 
                       {/* HOUSE-specific fields: Security Deposit, Water, Motor */}
                       {selectedRoom?.type === 'HOUSE' && (
-                        <div className="space-y-3 animate-fade-in-up">
-                          <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4 animate-fade-in-up">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-[10px] text-zinc-500 mb-1">Security Deposit</label>
+                              <label className="block text-xs text-zinc-400 mb-1">Security Deposit</label>
                               <input
                                 type="number"
                                 value={secDepBill}
                                 onChange={(e) => setSecDepBill(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                                className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                               />
                             </div>
                             <div>
-                              <label className="block text-[10px] text-zinc-500 mb-1">Water Bill</label>
+                              <label className="block text-xs text-zinc-400 mb-1">Water Bill</label>
                               <input
                                 type="number"
                                 value={waterBill}
                                 onChange={(e) => setWaterBill(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                                className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                               />
                             </div>
                           </div>
                           <div>
-                            <label className="block text-[10px] text-zinc-400 mb-1 flex items-center gap-1">
+                            <label className="block text-xs text-zinc-400 mb-1 flex items-center gap-1">
                               💧 Motor Charge
                             </label>
                             <input
                               type="number"
                               value={motorBill}
                               onChange={(e) => setMotorBill(e.target.value)}
-                              className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                              className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                             />
                           </div>
                         </div>
@@ -1532,249 +1510,58 @@ export default function OwnerDashboard() {
 
                       {/* ROOM-specific fields: Internet, Cleaning */}
                       {selectedRoom?.type === 'ROOM' && (
-                        <div className="grid grid-cols-2 gap-4 animate-fade-in-up">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-up">
                           <div>
-                            <label className="block text-[10px] text-zinc-500 mb-1">Internet Charge</label>
+                            <label className="block text-xs text-zinc-400 mb-1">Internet Charge</label>
                             <input
                               type="number"
                               value={internetBill}
                               onChange={(e) => setInternetBill(e.target.value)}
-                              className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                              className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-zinc-500 mb-1">Cleaning Charge</label>
+                            <label className="block text-xs text-zinc-400 mb-1">Cleaning Charge</label>
                             <input
                               type="number"
                               value={cleaningBill}
                               onChange={(e) => setCleaningBill(e.target.value)}
-                              className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                              className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                             />
                           </div>
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] text-zinc-500 mb-1">Other Utility (Wi-Fi, etc)</label>
+                          <label className="block text-xs text-zinc-400 mb-1">Other Utility (Wi-Fi, Maintenance, etc.)</label>
                           <input
                             type="number"
                             value={otherBill}
                             onChange={(e) => setOtherBill(e.target.value)}
-                            className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                            className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] text-zinc-500 mb-1">Utility Notes</label>
+                          <label className="block text-xs text-zinc-400 mb-1">Note for Other Utility</label>
                           <input
                             type="text"
                             value={otherNotes}
                             onChange={(e) => setOtherNotes(e.target.value)}
-                            placeholder="e.g. WiFi Charge"
-                            className="w-full px-3 py-1.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-white text-sm"
+                            placeholder="e.g. Garbage collection fee"
+                            className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-sm"
                           />
                         </div>
                       </div>
-
-                      {/* Custom Dynamic Charges */}
-                      {customBills.length > 0 && (
-                        <div className="space-y-2.5 pt-2 border-t border-white/5">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Owner Custom Charges</p>
-                          {customBills.map((bill, index) => (
-                            <div key={index} className="grid grid-cols-2 gap-3 items-center bg-white/5 p-2 rounded-xl border border-white/5 animate-fade-in-up">
-                              <div>
-                                <input
-                                  type="text"
-                                  required
-                                  value={bill.label}
-                                  onChange={(e) => {
-                                    const updated = [...customBills];
-                                    updated[index].label = e.target.value;
-                                    setCustomBills(updated);
-                                  }}
-                                  placeholder="e.g. Parking, Pest"
-                                  className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-800 rounded text-xs text-white focus:outline-none"
-                                />
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <input
-                                  type="number"
-                                  required
-                                  value={bill.amount}
-                                  onChange={(e) => {
-                                    const updated = [...customBills];
-                                    updated[index].amount = e.target.value;
-                                    setCustomBills(updated);
-                                  }}
-                                  placeholder="Amount"
-                                  className="w-full px-2 py-1.5 bg-zinc-900 border border-zinc-800 rounded text-xs text-white focus:outline-none"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const updated = customBills.filter((_, i) => i !== index);
-                                    setCustomBills(updated);
-                                  }}
-                                  className="p-1 text-rose-500 hover:text-rose-450 cursor-pointer"
-                                  title="Remove"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {customBills.length < 5 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCustomBills([...customBills, { label: '', amount: '0' }]);
-                          }}
-                          className="text-[10px] text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 cursor-pointer w-fit mt-1.5"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> Add Custom Charge
-                        </button>
-                      )}
                     </div>
 
                     <button
                       type="submit"
-                      className="glow-btn w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                      className="glow-btn w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 cursor-pointer mt-4"
                     >
-                      <Plus className="w-4 h-4" /> Create Bill Invoice
+                      <Plus className="w-5 h-5" /> Generate & Issue Month Rent Bill
                     </button>
                   </form>
-                </div>
-
-                {/* Verification Queue (Under Review payments) */}
-                <div className="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-4">
-                  <h3 className="text-base font-bold text-white flex items-center gap-2 border-b border-white/5 pb-3">
-                    <Clock className="w-5 h-5 text-amber-500 animate-pulse" /> Payment Proof Verification Queue
-                  </h3>
-
-                  {rentCycles.filter((rc) => rc.status === 'UNDER_VERIFICATION').length === 0 ? (
-                    <div className="text-center py-16 text-zinc-500">
-                      <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-emerald-500 opacity-30" />
-                      <p className="text-sm">Verification queue is empty. All payments verified!</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {rentCycles
-                        .filter((rc) => rc.status === 'UNDER_VERIFICATION')
-                        .map((rc) => {
-                          const activePayment = rc.payments.find((p: any) => p.status === 'PENDING');
-                          if (!activePayment) return null;
-
-                          return (
-                            <div key={rc.id} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-4 text-sm">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-2">
-                                <div>
-                                  <h4 className="font-bold text-white">{rc.tenant.user.name}</h4>
-                                  <p className="text-xs text-zinc-400">
-                                    Room {rc.tenant.room.number} ({rc.tenant.room.property.name}) • Month: {rc.billingMonth}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-base font-bold text-purple-400">₹{rc.totalAmount.toLocaleString('en-IN')}</p>
-                                  <span className="text-[10px] uppercase font-bold text-amber-400">Verifying Proof</span>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <p className="text-xs">
-                                    <span className="text-zinc-500 block">Transaction Reference / UTR ID:</span>
-                                    <span className="font-mono text-white font-bold">{activePayment.transactionId}</span>
-                                  </p>
-                                  <p className="text-xs">
-                                    <span className="text-zinc-500 block">Uploaded At:</span>
-                                    <span className="text-white">{new Date(activePayment.paidAt).toLocaleString('en-IN')}</span>
-                                  </p>
-
-                                  {/* Action form */}
-                                  <div className="pt-3 space-y-3">
-                                    <div className="flex items-center gap-2">
-                                      <button
-                                        onClick={() => handleVerifyPayment(activePayment.id, 'APPROVE')}
-                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/10 cursor-pointer"
-                                      >
-                                        <Check className="w-4 h-4" /> Approve Payment
-                                      </button>
-                                      <button
-                                        onClick={() => setPaymentRejectId(activePayment.id)}
-                                        className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-rose-600/10 cursor-pointer"
-                                      >
-                                        <X className="w-4 h-4" /> Reject Payment
-                                      </button>
-                                    </div>
-
-                                    {paymentRejectId === activePayment.id && (
-                                      <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 space-y-2">
-                                        <input
-                                          type="text"
-                                          required
-                                          value={rejectionReason}
-                                          onChange={(e) => setRejectionReason(e.target.value)}
-                                          placeholder="Enter reason for rejection..."
-                                          className="w-full px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-md text-white text-xs"
-                                        />
-                                        <div className="flex items-center gap-2 justify-end">
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setPaymentRejectId('');
-                                              setRejectionReason('');
-                                            }}
-                                            className="text-[10px] text-zinc-400 hover:text-white"
-                                          >
-                                            Cancel
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleVerifyPayment(activePayment.id, 'REJECT')}
-                                            className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-semibold cursor-pointer"
-                                          >
-                                            Confirm Reject
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <span className="text-zinc-550 text-xs block mb-1">Receipt Screenshot:</span>
-                                  {activePayment.screenshotUrl ? (
-                                    <div className="relative rounded-lg overflow-hidden border border-white/5 max-h-36 bg-zinc-950 flex items-center justify-center">
-                                      {/* Link to open in new tab */}
-                                      <a
-                                        href={activePayment.screenshotUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-all flex items-center justify-center text-xs font-bold text-white"
-                                      >
-                                        <Eye className="w-5 h-5 mr-1" /> Open Image
-                                      </a>
-                                      <img
-                                        src={activePayment.screenshotUrl}
-                                        alt="Proof"
-                                        className="object-contain max-h-36 w-full"
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="rounded-lg border border-dashed border-white/10 p-6 text-center text-zinc-600 text-xs">
-                                      No screenshot uploaded
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -1810,13 +1597,12 @@ export default function OwnerDashboard() {
                             <td className="py-3.5 px-4 font-mono">{rc.billingMonth}</td>
                             <td className="py-3.5 px-4 font-semibold text-white">₹{rc.totalAmount.toLocaleString('en-IN')}</td>
                             <td className="py-3.5 px-4">
-                              <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${
-                                rc.status === 'PAID'
+                              <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${rc.status === 'PAID'
                                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                   : rc.status === 'UNDER_VERIFICATION'
-                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                              }`}>
+                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                }`}>
                                 {rc.status === 'UNDER_VERIFICATION' ? 'VERIFYING' : rc.status}
                               </span>
                             </td>
@@ -1854,7 +1640,7 @@ export default function OwnerDashboard() {
           {/* TAB 4: COMPLAINTS */}
           {activeTab === 'complaints' && (
             <div className="space-y-6 animate-fade-in-up">
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Resolve Note Form */}
                 <div className="glass-panel p-6 rounded-2xl h-fit">
@@ -1929,26 +1715,24 @@ export default function OwnerDashboard() {
                         <div key={c.id} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold mr-2 border ${
-                                c.urgency === 'HIGH'
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold mr-2 border ${c.urgency === 'HIGH'
                                   ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                                   : c.urgency === 'MEDIUM'
-                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                  : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                              }`}>
+                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                }`}>
                                 {c.urgency} Urgency
                               </span>
                               <span className="text-zinc-500 text-xs font-medium">Category: {c.category}</span>
                               <h4 className="font-bold text-white text-base mt-2">{c.title}</h4>
                             </div>
 
-                            <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border self-start ${
-                              c.status === 'RESOLVED'
+                            <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border self-start ${c.status === 'RESOLVED'
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                 : c.status === 'IN_PROGRESS'
-                                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                                : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                            }`}>
+                                  ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                              }`}>
                               {c.status}
                             </span>
                           </div>
@@ -1983,7 +1767,7 @@ export default function OwnerDashboard() {
           {activeTab === 'announcements' && (
             <div className="space-y-6 animate-fade-in-up">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Broadcast Form */}
                 <div className="glass-panel p-6 rounded-2xl h-fit">
                   <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
@@ -2083,10 +1867,6 @@ export default function OwnerDashboard() {
                   <Settings className="w-5 h-5 text-purple-500" /> UPI Payment Settings
                 </h3>
 
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  Configure your business UPI ID (VPA) and payee name. These details appear on invoices generated for your tenants.
-                </p>
-
                 <form onSubmit={handleUpdateUpi} className="space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -2137,11 +1917,11 @@ export default function OwnerDashboard() {
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
               <User className="w-5 h-5 text-purple-400" /> Edit Tenant Profile
             </h3>
-            
+
             <form onSubmit={handleEditTenant} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Tenant Full Name</label>
@@ -2201,7 +1981,7 @@ export default function OwnerDashboard() {
                 onClick={() => setShowProfileModal(false)}
                 className="text-zinc-500 hover:text-white transition-colors p-1 cursor-pointer"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             </div>
 
@@ -2264,7 +2044,7 @@ export default function OwnerDashboard() {
                 className="glow-btn w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900/50 text-white font-bold rounded-xl text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 {savingProfile ? (
-                  <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Saving...</>
+                  <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Saving...</>
                 ) : (
                   'Save Profile Changes'
                 )}

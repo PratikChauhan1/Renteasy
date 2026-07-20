@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, LogOut, 
+import {
+  Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, LogOut,
   Bell, Plus, Check, X, Copy, FileText, User, IndianRupee,
   Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, CheckCircle2, Clock, Info, ShieldAlert, Loader2, Menu
 } from 'lucide-react';
@@ -68,7 +68,7 @@ export default function TenantDashboard() {
       const res = await fetch('/api/auth/me');
       if (!res.ok) throw new Error('Unauthorized');
       const data = await res.json();
-      
+
       if (data.user.role !== 'TENANT') {
         router.replace('/dashboard/owner');
       } else {
@@ -391,7 +391,7 @@ export default function TenantDashboard() {
       <div className="min-h-screen flex items-center justify-center px-6 py-12 relative overflow-hidden bg-[#09090b]">
         {/* Background glow */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[80px]" />
-        
+
         <div className="w-full max-w-md z-10 animate-fade-in-up">
           <div className="flex flex-col items-center mb-8">
             <Building2 className="w-12 h-12 text-purple-500 mb-2" />
@@ -488,22 +488,20 @@ export default function TenantDashboard() {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'overview'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'overview'
                 ? 'bg-purple-600 text-white'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <LayoutDashboard className="w-5 h-5" /> Room Cockpit
           </button>
 
           <button
             onClick={() => setActiveTab('billing')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'billing'
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'billing'
                 ? 'bg-purple-600 text-white'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <span className="flex items-center gap-3">
               <Receipt className="w-5 h-5" /> Pay Rent & Bills
@@ -517,22 +515,20 @@ export default function TenantDashboard() {
 
           <button
             onClick={() => setActiveTab('complaints')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'complaints'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'complaints'
                 ? 'bg-purple-600 text-white'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <AlertTriangle className="w-5 h-5" /> File Complaint
           </button>
 
           <button
             onClick={() => setActiveTab('announcements')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === 'announcements'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'announcements'
                 ? 'bg-purple-600 text-white'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <Megaphone className="w-5 h-5" /> Announcements
           </button>
@@ -587,20 +583,20 @@ export default function TenantDashboard() {
 
               {/* Notification Drawer */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-80 glass-panel border border-white/10 rounded-2xl shadow-2xl p-4 z-50 text-left animate-fade-in-up">
-                  <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">Notifications</span>
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-[#121215] border border-purple-500/30 rounded-2xl shadow-2xl p-4 z-50 text-left animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400">Notifications</span>
                   </div>
-                  <div className="max-h-60 overflow-y-auto space-y-3">
+                  <div className="max-h-72 overflow-y-auto space-y-2.5 pr-1">
                     {notifications.length === 0 ? (
-                      <p className="text-xs text-zinc-500 text-center py-4">No notifications.</p>
+                      <p className="text-xs text-zinc-400 text-center py-6">No notifications.</p>
                     ) : (
                       notifications.map((n) => (
-                        <div key={n.id} className="p-2.5 rounded-xl bg-white/5 text-xs">
-                          <p className="font-semibold text-white mb-0.5">{n.title}</p>
-                          <p className="text-zinc-400 leading-normal">{n.message}</p>
-                          <span className="text-[9px] text-zinc-600 mt-1 block">
-                            {new Date(n.createdAt).toLocaleDateString('en-IN')}
+                        <div key={n.id} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1">
+                          <p className="font-bold text-white text-xs leading-snug">{n.title}</p>
+                          <p className="text-zinc-300 text-xs leading-relaxed">{n.message}</p>
+                          <span className="text-[10px] text-purple-300 font-mono mt-1 block">
+                            {new Date(n.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       ))
@@ -636,17 +632,15 @@ export default function TenantDashboard() {
         <div className="md:hidden flex items-center justify-around bg-zinc-950/90 border-b border-white/5 p-2 sticky top-[57px] z-30 backdrop-blur-md text-xs font-semibold">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
-              activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
-            }`}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+              }`}
           >
             <LayoutDashboard className="w-4 h-4" /> Room Cockpit
           </button>
           <button
             onClick={() => setActiveTab('billing')}
-            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${
-              activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
-            }`}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+              }`}
           >
             <Receipt className="w-4 h-4" /> Pay Rent & Bills
             {activeInvoice?.status === 'PENDING' && (
@@ -731,19 +725,21 @@ export default function TenantDashboard() {
 
         {/* Views */}
         <main className="flex-1 p-6 overflow-y-auto">
-          
+
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-fade-in-up">
               {/* Room Card banner */}
               <div className="glass-panel p-8 rounded-2xl relative overflow-hidden flex flex-col justify-between md:flex-row gap-6 items-start md:items-center">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[60px] pointer-events-none" />
-                
+
                 <div>
                   <span className="px-2.5 py-1 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-wider">
                     {activeProperty.name}
                   </span>
-                  <h2 className="text-3xl font-extrabold text-white mt-3">Room {activeRoom.number}</h2>
+                  <h2 className="text-3xl font-extrabold text-white mt-3">
+                    {activeRoom.type === 'HOUSE' ? `House ${activeRoom.number}` : `Room ${activeRoom.number}`}
+                  </h2>
                   <p className="text-sm text-zinc-400 mt-1.5 flex items-center gap-1.5">
                     <Building2 className="w-4 h-4 text-zinc-500" /> {activeProperty.address}
                   </p>
@@ -755,8 +751,8 @@ export default function TenantDashboard() {
                     <span className="font-bold text-white">₹{activeRoom.baseRent.toLocaleString('en-IN')}/mo</span>
                   </p>
                   <p className="flex justify-between gap-6">
-                    <span className="text-zinc-500">Sharing Mode:</span>
-                    <span className="text-white font-medium">{activeRoom.capacity} sharing capacity</span>
+                    <span className="text-zinc-500">{activeRoom.type === 'HOUSE' ? 'Unit Type:' : 'Sharing Mode:'}</span>
+                    <span className="text-white font-medium">{activeRoom.type === 'HOUSE' ? 'Entire House Unit' : `${activeRoom.capacity} sharing capacity`}</span>
                   </p>
                   <p className="flex justify-between gap-6">
                     <span className="text-zinc-500">Joined:</span>
@@ -779,7 +775,7 @@ export default function TenantDashboard() {
                       <p className="text-xs text-purple-400 font-semibold">Host / Landlord</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3 text-xs border-t border-white/5 pt-4">
                     <p className="flex justify-between">
                       <span className="text-zinc-500">Owner Name:</span>
@@ -810,7 +806,7 @@ export default function TenantDashboard() {
                 <div className="glass-panel p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between">
                   <div>
                     <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4">Current Invoice Status</h3>
-                    
+
                     {!activeInvoice ? (
                       <div className="py-8 text-center text-zinc-500 flex flex-col items-center justify-center">
                         <CheckCircle2 className="w-12 h-12 text-emerald-500 opacity-20 mb-2" />
@@ -819,11 +815,10 @@ export default function TenantDashboard() {
                     ) : (
                       <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
                         <div>
-                          <span className={`px-2.5 py-0.5 rounded text-[10px] uppercase font-bold border ${
-                            activeInvoice.status === 'UNDER_VERIFICATION'
+                          <span className={`px-2.5 py-0.5 rounded text-[10px] uppercase font-bold border ${activeInvoice.status === 'UNDER_VERIFICATION'
                               ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                               : 'bg-rose-500/10 text-rose-450 border-rose-500/20'
-                          }`}>
+                            }`}>
                             {activeInvoice.status === 'UNDER_VERIFICATION' ? 'VERIFICATION PENDING' : 'UNPAID'}
                           </span>
                           <h4 className="text-2xl font-extrabold text-white mt-3">
@@ -837,7 +832,7 @@ export default function TenantDashboard() {
                         <div className="text-xs text-zinc-450 space-y-1 bg-black/10 p-3 rounded-lg border border-white/5 self-start w-full sm:w-auto">
                           <p className="flex justify-between gap-4">
                             <span>Base Rent:</span>
-                            <span className="text-white">₹{activeInvoice.baseRent}</span>
+                            <span className="text-white font-semibold">₹{activeInvoice.baseRent}</span>
                           </p>
                           {activeInvoice.securityDeposit > 0 && (
                             <p className="flex justify-between gap-4 animate-fade-in-up">
@@ -845,14 +840,16 @@ export default function TenantDashboard() {
                               <span className="text-white">₹{activeInvoice.securityDeposit}</span>
                             </p>
                           )}
-                          <p className="flex justify-between gap-4">
-                            <span>Electricity:</span>
-                            <span className="text-white">₹{activeInvoice.electricity}</span>
-                          </p>
+                          {activeInvoice.electricity > 0 && (
+                            <p className="flex justify-between gap-4">
+                              <span>Electricity:</span>
+                              <span className="text-white font-semibold">₹{activeInvoice.electricity}</span>
+                            </p>
+                          )}
                           {activeInvoice.water > 0 && (
-                            <p className="flex justify-between gap-4 animate-fade-in-up">
+                            <p className="flex justify-between gap-4">
                               <span>Water:</span>
-                              <span className="text-white">₹{activeInvoice.water}</span>
+                              <span className="text-white font-semibold">₹{activeInvoice.water}</span>
                             </p>
                           )}
                           {activeInvoice.motorCharge > 0 && (
@@ -909,7 +906,7 @@ export default function TenantDashboard() {
           {/* TAB 2: BILLING & PAYMENT FLOW */}
           {activeTab === 'billing' && (
             <div className="space-y-8 animate-fade-in-up">
-              
+
               {/* Payment Flow Drawer */}
               {selectedInvoice && (
                 <div className="glass-panel p-6 rounded-2xl border-purple-500/20 shadow-purple-500/5 relative">
@@ -972,11 +969,8 @@ export default function TenantDashboard() {
                       <div className="space-y-3">
                         <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest block">⚡ INSTANT ONLINE PAYMENT</span>
                         <h4 className="text-lg font-bold text-white">Pay via Razorpay Secure Gateway</h4>
-                        <p className="text-xs text-zinc-400 leading-relaxed">
-                          Complete your rent payment instantly. Payment is automatically verified, and a computer-generated digital receipt is issued immediately to your account.
-                        </p>
 
-                        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-1.5 text-zinc-300">
+                        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-1.5 text-zinc-300 mt-2">
                           <p className="font-bold text-purple-300">Supported Payment Options:</p>
                           <ul className="text-[11px] space-y-1 text-zinc-400 list-disc pl-4">
                             <li><strong>UPI:</strong> GPay, PhonePe, Paytm, BHIM, Cred</li>
@@ -1007,8 +1001,8 @@ export default function TenantDashboard() {
                       </div>
                     </div>
                   </div>
-                  </div>
-                )}
+                </div>
+              )}
 
               {/* Invoices List */}
               <div className="glass-panel p-6 rounded-2xl space-y-4">
@@ -1050,13 +1044,12 @@ export default function TenantDashboard() {
                             </td>
                             <td className="py-3.5 px-4 font-bold text-white">₹{rc.totalAmount.toLocaleString('en-IN')}</td>
                             <td className="py-3.5 px-4">
-                              <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${
-                                rc.status === 'PAID'
+                              <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${rc.status === 'PAID'
                                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                   : rc.status === 'UNDER_VERIFICATION'
-                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                  : 'bg-rose-500/10 text-rose-455 border-rose-500/20'
-                              }`}>
+                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    : 'bg-rose-500/10 text-rose-455 border-rose-500/20'
+                                }`}>
                                 {rc.status === 'UNDER_VERIFICATION' ? 'VERIFYING' : rc.status}
                               </span>
                             </td>
@@ -1130,13 +1123,12 @@ export default function TenantDashboard() {
                             <td className="py-3.5 px-4 font-mono text-xs">{p.transactionId}</td>
                             <td className="py-3.5 px-4">
                               <div>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                                  p.status === 'APPROVED'
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${p.status === 'APPROVED'
                                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                     : p.status === 'REJECTED'
-                                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                }`}>
+                                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                      : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                  }`}>
                                   {p.status}
                                 </span>
                                 {p.status === 'REJECTED' && p.rejectionReason && (
@@ -1161,7 +1153,7 @@ export default function TenantDashboard() {
           {activeTab === 'complaints' && (
             <div className="space-y-6 animate-fade-in-up">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Form */}
                 <div className="glass-panel p-6 rounded-2xl h-fit">
                   <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
@@ -1252,26 +1244,24 @@ export default function TenantDashboard() {
                         <div key={c.id} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
                           <div className="flex justify-between items-center flex-wrap gap-2">
                             <div>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold mr-2 border ${
-                                c.urgency === 'HIGH'
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold mr-2 border ${c.urgency === 'HIGH'
                                   ? 'bg-rose-500/10 text-rose-450 border-rose-500/20'
                                   : c.urgency === 'MEDIUM'
-                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                  : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                              }`}>
+                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                    : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                }`}>
                                 {c.urgency} Urgency
                               </span>
                               <span className="text-zinc-500 text-xs font-semibold">Category: {c.category}</span>
                               <h4 className="font-bold text-white text-base mt-2">{c.title}</h4>
                             </div>
 
-                            <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${
-                              c.status === 'RESOLVED'
+                            <span className={`px-2.5 py-0.5 rounded text-xs font-semibold border ${c.status === 'RESOLVED'
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                 : c.status === 'IN_PROGRESS'
-                                ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                                : 'bg-rose-500/10 text-rose-450 border-rose-500/20'
-                            }`}>
+                                  ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                                  : 'bg-rose-500/10 text-rose-450 border-rose-500/20'
+                              }`}>
                               {c.status}
                             </span>
                           </div>
@@ -1352,7 +1342,7 @@ export default function TenantDashboard() {
                 onClick={() => setShowProfileModal(false)}
                 className="text-zinc-500 hover:text-white transition-colors p-1 cursor-pointer"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             </div>
 
@@ -1415,7 +1405,7 @@ export default function TenantDashboard() {
                 className="glow-btn w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900/50 text-white font-bold rounded-xl text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 {savingProfile ? (
-                  <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Saving...</>
+                  <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Saving...</>
                 ) : (
                   'Save Profile Changes'
                 )}
