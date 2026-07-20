@@ -7,7 +7,7 @@ import jsQR from 'jsqr';
 import { 
   Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, Settings, 
   LogOut, Bell, Plus, Check, X, Copy, FileText, Upload, User, IndianRupee,
-  Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, TrendingUp, Sparkles, CheckCircle2, Clock, Loader2
+  Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, TrendingUp, Sparkles, CheckCircle2, Clock, Loader2, Menu
 } from 'lucide-react';
 
 export default function OwnerDashboard() {
@@ -18,6 +18,7 @@ export default function OwnerDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   // Data lists
   const [properties, setProperties] = useState<any[]>([]);
@@ -651,9 +652,24 @@ export default function OwnerDashboard() {
 
         <div className="space-y-1.5 text-xs text-zinc-400">
           {room.tenants.length > 0 && (
-            <div className="bg-purple-500/10 border border-purple-500/20 p-2.5 rounded-lg text-xs mb-1">
-              <span className="text-purple-400 font-bold block text-[9px] uppercase tracking-wider mb-0.5">Resident</span>
-              <span className="text-white font-bold">{room.tenants.map((t: any) => t.user.name).join(', ')}</span>
+            <div className="bg-purple-500/10 border border-purple-500/20 p-2.5 rounded-lg text-xs mb-1 space-y-2">
+              <span className="text-purple-400 font-bold block text-[9px] uppercase tracking-wider">
+                {room.type === 'HOUSE' ? '🏡 House Occupant / Tenant' : '🚪 Room Resident(s)'}
+              </span>
+              {room.tenants.map((t: any) => (
+                <div key={t.id} className="flex items-center justify-between gap-2 border-t border-purple-500/20 pt-1.5 first:border-none first:pt-0">
+                  <div>
+                    <span className="text-white font-bold block">{t.user?.name || 'Occupant'}</span>
+                    <span className="text-[10px] text-zinc-400 font-mono">{t.user?.phone || t.user?.email}</span>
+                  </div>
+                  <Link
+                    href={`/dashboard/owner/tenant/${t.id}`}
+                    className="text-[10px] bg-purple-600 hover:bg-purple-700 text-white font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0"
+                  >
+                    Edit Details
+                  </Link>
+                </div>
+              ))}
             </div>
           )}
           <p className="flex justify-between">
@@ -720,8 +736,8 @@ export default function OwnerDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#09090b]">
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 glass-panel border-r border-white/5 flex flex-col shrink-0">
+      {/* Desktop Sticky & Frozen Sidebar Navigation */}
+      <aside className="hidden md:flex w-64 glass-panel border-r border-white/5 flex-col shrink-0 md:sticky md:top-0 md:h-screen z-30">
         <div className="p-6 border-b border-white/5 flex items-center gap-2">
           <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
             RentEasy
@@ -731,7 +747,7 @@ export default function OwnerDashboard() {
           </span>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => setActiveTab('overview')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
@@ -825,10 +841,19 @@ export default function OwnerDashboard() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="glass-panel border-b border-white/5 px-6 py-4 flex items-center justify-between z-40">
+        {/* Top Header Bar */}
+        <header className="glass-panel border-b border-white/5 px-4 md:px-6 py-3.5 flex items-center justify-between z-40 sticky top-0 bg-[#09090b]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-white uppercase tracking-wider">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setShowMobileMenu(true)}
+              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 cursor-pointer"
+              title="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <h1 className="text-sm md:text-lg font-bold text-white uppercase tracking-wider">
               {activeTab === 'overview' && 'Cockpit Overview'}
               {activeTab === 'properties' && 'Properties & Rooms'}
               {activeTab === 'billing' && 'Rents & Verification'}
@@ -838,7 +863,7 @@ export default function OwnerDashboard() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4 relative">
+          <div className="flex items-center gap-3 relative">
             <div className="relative">
               <button
                 onClick={() => {
@@ -905,6 +930,126 @@ export default function OwnerDashboard() {
             </div>
           </div>
         </header>
+
+        {/* Mobile Quick Access Navigation Bar (Overview, Properties & Rooms, Rents & Bills) */}
+        <div className="md:hidden flex items-center justify-around bg-zinc-950/90 border-b border-white/5 p-2 sticky top-[57px] z-30 backdrop-blur-md text-xs font-semibold">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
+              activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4" /> Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('properties')}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
+              activeTab === 'properties' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+            }`}
+          >
+            <Building2 className="w-4 h-4" /> House & Rooms
+          </button>
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${
+              activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+            }`}
+          >
+            <Receipt className="w-4 h-4" /> Rent & Bills
+            {stats.pendingVerificationCount > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 absolute top-1 right-2" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Slide-Over Hamburger Drawer Menu */}
+        {showMobileMenu && (
+          <div className="fixed inset-0 z-50 flex md:hidden animate-fade-in-up">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
+            <div className="relative w-4/5 max-w-xs bg-[#09090b] border-r border-white/10 h-full p-5 flex flex-col justify-between z-10 shadow-2xl">
+              <div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                  <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
+                    RentEasy Menu
+                  </span>
+                  <button onClick={() => setShowMobileMenu(false)} className="p-1 rounded-lg text-zinc-400 hover:text-white">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-sm font-semibold">
+                  <button
+                    onClick={() => { setActiveTab('overview'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'overview' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-purple-400" /> Overview
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('properties'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'properties' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <Building2 className="w-4 h-4 text-purple-400" /> House & Rooms
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('billing'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'billing' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <span className="flex items-center gap-3"><Receipt className="w-4 h-4 text-purple-400" /> Rent & Verifications</span>
+                    {stats.pendingVerificationCount > 0 && <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-black font-bold">{stats.pendingVerificationCount}</span>}
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('complaints'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'complaints' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <span className="flex items-center gap-3"><AlertTriangle className="w-4 h-4 text-amber-400" /> Complaints / Tickets</span>
+                    {complaints.filter(c => c.status !== 'RESOLVED').length > 0 && <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-500 text-white font-bold">{complaints.filter(c => c.status !== 'RESOLVED').length}</span>}
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('announcements'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'announcements' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <Megaphone className="w-4 h-4 text-indigo-400" /> Announcements
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('settings'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'settings' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <Settings className="w-4 h-4 text-emerald-400" /> UPI Payment Settings
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setProfileName(user.name || '');
+                      setProfileEmail(user.email || '');
+                      setProfilePhone(user.phone || '');
+                      setProfileAddress(user.address || '');
+                      setProfilePassword('');
+                      setShowProfileModal(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-zinc-300 hover:bg-white/5 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-purple-400" /> Edit Profile
+                  </button>
+                </div>
+              </div>
+
+              <div className="border-t border-white/10 pt-3">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3.5 py-2.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Panels */}
         <main className="flex-1 p-6 overflow-y-auto relative">
@@ -1939,7 +2084,7 @@ export default function OwnerDashboard() {
                 </h3>
 
                 <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  These payment details will be displayed to your tenants during checkout. Correct configuration ensures tenants can pay you directly using UPI Intent (GPay, PhonePe, Paytm, etc.) or QR scan.
+                  Configure your business UPI ID (VPA) and payee name. These details appear on invoices generated for your tenants.
                 </p>
 
                 <form onSubmit={handleUpdateUpi} className="space-y-5">
@@ -1965,35 +2110,6 @@ export default function OwnerDashboard() {
                         placeholder="e.g. Rajesh Kumar"
                         className="w-full px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 text-sm"
                       />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5">UPI Payment QR Image</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                      <div className="flex flex-col gap-2">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={onQrCodeFileChange}
-                          className="text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 cursor-pointer"
-                        />
-                        <span className="text-[10px] text-zinc-500">Upload your static UPI merchant QR screenshot (PNG/JPEG)</span>
-                      </div>
-                      
-                      {upiQrUrl ? (
-                        <div className="relative rounded-lg overflow-hidden border border-white/5 h-28 w-28 bg-zinc-950 flex items-center justify-center mx-auto md:ml-auto">
-                          <img
-                            src={upiQrUrl}
-                            alt="UPI QR Code"
-                            className="object-contain max-h-28 w-full"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-28 w-28 rounded-lg border border-dashed border-white/10 flex items-center justify-center text-center text-zinc-650 text-[10px] mx-auto md:ml-auto">
-                          No QR Code uploaded
-                        </div>
-                      )}
                     </div>
                   </div>
 

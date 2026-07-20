@@ -2,45 +2,67 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { supabaseAdmin } from '@/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
+import { validateUserRegistration, cleanPhone } from '@/lib/validation';
 
 export async function POST(request: Request) {
   try {
     const { email, password, name, phone, role } = await request.json();
 
-    if (!email || !password || !name || !role) {
-      return NextResponse.json({ error: 'Email, password, name, and role are required.' }, { status: 400 });
+    // 1. Strict Server-Side Field & Format Validation
+    const validation = validateUserRegistration({ email, password, name, phone, role });
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    if (role !== 'OWNER' && role !== 'TENANT') {
-      return NextResponse.json({ error: 'Invalid role. Must be OWNER or TENANT.' }, { status: 400 });
-    }
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone ? cleanPhone(phone) : null;
 
-    // Check if email already exists
-    const { data: existing } = await supabaseAdmin
+    // 2. Check if email already exists
+    const { data: existingEmail } = await supabaseAdmin
       .from('User')
       .select('id')
-      .eq('email', email)
+      .eq('email', normalizedEmail)
       .single();
 
-    if (existing) {
-      return NextResponse.json({ error: 'User with this email already exists.' }, { status: 400 });
+    if (existingEmail) {
+      return NextResponse.json({ error: 'An account with this email address already exists.' }, { status: 400 });
+    }
+
+    // 3. Check if phone already exists (if phone provided)
+    if (normalizedPhone) {
+      const { data: existingPhone } = await supabaseAdmin
+        .from('User')
+        .select('id')
+        .eq('phone', normalizedPhone)
+        .single();
+
+      if (existingPhone) {
+        return NextResponse.json({ error: 'An account with this phone number already exists.' }, { status: 400 });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = uuidv4();
 
-    // Insert User
+    // 4. Insert User with sanitized data
     const { data: createdUser, error: userErr } = await supabaseAdmin
       .from('User')
-      .insert({ id: userId, email, password: hashedPassword, name, phone: phone || null, role })
+      .insert({
+        id: userId,
+        email: normalizedEmail,
+        password: hashedPassword,
+        name: name.trim(),
+        phone: normalizedPhone,
+        role
+      })
       .select()
       .single();
 
     if (userErr || !createdUser) {
-      return NextResponse.json({ error: 'Failed to create user: ' + userErr?.message }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to create user account: ' + userErr?.message }, { status: 500 });
     }
 
-    // Create profile
+    // 5. Create role profile
     if (role === 'OWNER') {
       await supabaseAdmin.from('OwnerProfile').insert({ id: uuidv4(), userId });
     } else {
@@ -54,3 +76,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'An error occurred during registration: ' + error.message }, { status: 500 });
   }
 }
+

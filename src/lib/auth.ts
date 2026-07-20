@@ -32,7 +32,7 @@ export async function getCurrentUser() {
 
   const { data: userData, error } = await supabaseAdmin
     .from('User')
-    .select('*, ownerProfile:OwnerProfile(*), tenantProfile:TenantProfile(*, room:Room(*, property:Property(*)))')
+    .select('*, ownerProfile:OwnerProfile(*), tenantProfile:TenantProfile(*, room:Room(*, property:Property(*, owner:OwnerProfile(*, user:User(*)))))')
     .eq('id', payload.userId)
     .single();
 
@@ -50,6 +50,12 @@ export async function getCurrentUser() {
       }
       if (tenant.room?.property && Array.isArray(tenant.room.property)) {
         tenant.room.property = tenant.room.property[0] || null;
+      }
+      if (tenant.room?.property?.owner && Array.isArray(tenant.room.property.owner)) {
+        tenant.room.property.owner = tenant.room.property.owner[0] || null;
+      }
+      if (tenant.room?.property?.owner?.user && Array.isArray(tenant.room.property.owner.user)) {
+        tenant.room.property.owner.user = tenant.room.property.owner.user[0] || null;
       }
     }
     user.tenantProfile = tenant;

@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, Mail, Lock, User, Phone, Shield, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Phone, Loader2, AlertCircle, Check, X } from 'lucide-react';
+import { validateUserRegistration, validatePassword } from '@/lib/validation';
 
 function RegisterPageContent() {
   const router = useRouter();
@@ -17,6 +18,12 @@ function RegisterPageContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Password indicators
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumberOrSpec = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
   useEffect(() => {
     const roleParam = searchParams.get('role');
     if (roleParam === 'OWNER' || roleParam === 'TENANT') {
@@ -26,8 +33,16 @@ function RegisterPageContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    // Pre-validate client inputs
+    const val = validateUserRegistration({ name, email, phone, password, role });
+    if (!val.valid) {
+      setError(val.error || 'Please fill in valid details.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch('/api/auth/register', {
@@ -193,6 +208,29 @@ function RegisterPageContent() {
                   className="w-full pl-11 pr-4 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
                 />
               </div>
+
+              {/* Password strength checklist */}
+              {password.length > 0 && (
+                <div className="mt-2.5 p-2.5 rounded-lg bg-zinc-950/70 border border-white/5 space-y-1 text-[11px] animate-fade-in-up">
+                  <p className="font-semibold text-zinc-400 mb-1 text-[10px] uppercase tracking-wider">Password Requirements:</p>
+                  <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-400 font-semibold' : 'text-zinc-500'}`}>
+                    {hasMinLength ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                    <span>At least 8 characters long</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 ${hasUppercase ? 'text-emerald-400 font-semibold' : 'text-zinc-500'}`}>
+                    {hasUppercase ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                    <span>At least one uppercase letter (A-Z)</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 ${hasLowercase ? 'text-emerald-400 font-semibold' : 'text-zinc-500'}`}>
+                    {hasLowercase ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                    <span>At least one lowercase letter (a-z)</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 ${hasNumberOrSpec ? 'text-emerald-400 font-semibold' : 'text-zinc-500'}`}>
+                    {hasNumberOrSpec ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                    <span>At least one number or special character</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button

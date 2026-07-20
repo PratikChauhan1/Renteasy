@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   Building2, LayoutDashboard, Receipt, AlertTriangle, Megaphone, LogOut, 
   Bell, Plus, Check, X, Copy, FileText, User, IndianRupee,
-  Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, CheckCircle2, Clock, Info, ShieldAlert, Loader2
+  Calendar, Key, Eye, HelpCircle, Phone, ArrowUpRight, CheckCircle2, Clock, Info, ShieldAlert, Loader2, Menu
 } from 'lucide-react';
 
 export default function TenantDashboard() {
@@ -17,6 +17,7 @@ export default function TenantDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Data lists
   const [rentCycles, setRentCycles] = useState<any[]>([]);
@@ -473,8 +474,8 @@ export default function TenantDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#09090b]">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 glass-panel border-r border-white/5 flex flex-col shrink-0">
+      {/* Desktop Sticky & Frozen Sidebar */}
+      <aside className="hidden md:flex w-64 glass-panel border-r border-white/5 flex-col shrink-0 md:sticky md:top-0 md:h-screen z-30">
         <div className="p-6 border-b border-white/5 flex items-center gap-2">
           <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
             RentEasy
@@ -484,7 +485,7 @@ export default function TenantDashboard() {
           </span>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => setActiveTab('overview')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
@@ -550,15 +551,26 @@ export default function TenantDashboard() {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="glass-panel border-b border-white/5 px-6 py-4 flex items-center justify-between z-45">
-          <h1 className="text-lg font-bold text-white uppercase tracking-wider">
-            {activeTab === 'overview' && 'Room Cockpit'}
-            {activeTab === 'billing' && 'Billing Portal'}
-            {activeTab === 'complaints' && 'Maintenance Request'}
-            {activeTab === 'announcements' && 'Landlord Announcements'}
-          </h1>
+        <header className="glass-panel border-b border-white/5 px-4 md:px-6 py-3.5 flex items-center justify-between z-40 sticky top-0 bg-[#09090b]/90 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setShowMobileMenu(true)}
+              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 cursor-pointer"
+              title="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
 
-          <div className="flex items-center gap-4 relative">
+            <h1 className="text-sm md:text-lg font-bold text-white uppercase tracking-wider">
+              {activeTab === 'overview' && 'Room Cockpit'}
+              {activeTab === 'billing' && 'Billing Portal'}
+              {activeTab === 'complaints' && 'Maintenance Request'}
+              {activeTab === 'announcements' && 'Landlord Announcements'}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3 relative">
             <div className="relative">
               <button
                 onClick={() => {
@@ -620,6 +632,103 @@ export default function TenantDashboard() {
           </div>
         </header>
 
+        {/* Mobile Quick Navigation Bar (Overview, Pay Rent & Bills) */}
+        <div className="md:hidden flex items-center justify-around bg-zinc-950/90 border-b border-white/5 p-2 sticky top-[57px] z-30 backdrop-blur-md text-xs font-semibold">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors ${
+              activeTab === 'overview' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4" /> Room Cockpit
+          </button>
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`flex-1 py-2 text-center rounded-lg flex items-center justify-center gap-1.5 transition-colors relative ${
+              activeTab === 'billing' ? 'bg-purple-600 text-white font-bold' : 'text-zinc-400'
+            }`}
+          >
+            <Receipt className="w-4 h-4" /> Pay Rent & Bills
+            {activeInvoice?.status === 'PENDING' && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 absolute top-1 right-3" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Slide-Over Hamburger Drawer Menu */}
+        {showMobileMenu && (
+          <div className="fixed inset-0 z-50 flex md:hidden animate-fade-in-up">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
+            <div className="relative w-4/5 max-w-xs bg-[#09090b] border-r border-white/10 h-full p-5 flex flex-col justify-between z-10 shadow-2xl">
+              <div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                  <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
+                    RentEasy Menu
+                  </span>
+                  <button onClick={() => setShowMobileMenu(false)} className="p-1 rounded-lg text-zinc-400 hover:text-white">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-sm font-semibold">
+                  <button
+                    onClick={() => { setActiveTab('overview'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'overview' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-purple-400" /> Room Cockpit
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('billing'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'billing' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <span className="flex items-center gap-3"><Receipt className="w-4 h-4 text-purple-400" /> Pay Rent & Bills</span>
+                    {activeInvoice?.status === 'PENDING' && <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-black font-bold">Due</span>}
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('complaints'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'complaints' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <AlertTriangle className="w-4 h-4 text-amber-400" /> File Complaint / Ticket
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('announcements'); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${activeTab === 'announcements' ? 'bg-purple-600 text-white' : 'text-zinc-300 hover:bg-white/5'}`}
+                  >
+                    <Megaphone className="w-4 h-4 text-indigo-400" /> Landlord Announcements
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setProfileName(user.name || '');
+                      setProfileEmail(user.email || '');
+                      setProfilePhone(user.phone || '');
+                      setProfileAddress(user.address || '');
+                      setProfilePassword('');
+                      setShowProfileModal(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-zinc-300 hover:bg-white/5 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-purple-400" /> Edit Profile
+                  </button>
+                </div>
+              </div>
+
+              <div className="border-t border-white/10 pt-3">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3.5 py-2.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Views */}
         <main className="flex-1 p-6 overflow-y-auto">
           
@@ -662,27 +771,37 @@ export default function TenantDashboard() {
                 <div className="glass-panel p-6 rounded-2xl h-fit">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4">Landlord Profile</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white text-lg font-bold">
-                      {landlord?.user?.name.charAt(0).toUpperCase() || 'L'}
+                    <div className="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-lg font-bold">
+                      {landlord?.user?.name ? landlord.user.name.charAt(0).toUpperCase() : 'L'}
                     </div>
                     <div>
-                      <h4 className="font-bold text-white text-base">{landlord?.user?.name || 'Owner'}</h4>
-                      <p className="text-xs text-zinc-500">Host / Owner</p>
+                      <h4 className="font-bold text-white text-base">{landlord?.user?.name || 'Property Owner'}</h4>
+                      <p className="text-xs text-purple-400 font-semibold">Host / Landlord</p>
                     </div>
                   </div>
                   
                   <div className="space-y-3 text-xs border-t border-white/5 pt-4">
                     <p className="flex justify-between">
-                      <span className="text-zinc-500">Mobile:</span>
+                      <span className="text-zinc-500">Owner Name:</span>
+                      <span className="text-white font-semibold">{landlord?.user?.name || 'N/A'}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span className="text-zinc-500">Mobile Phone:</span>
                       <span className="text-white font-mono">{landlord?.user?.phone || 'N/A'}</span>
                     </p>
                     <p className="flex justify-between">
-                      <span className="text-zinc-500">Email:</span>
-                      <span className="text-white">{landlord?.user?.email}</span>
+                      <span className="text-zinc-500">Email Address:</span>
+                      <span className="text-white">{landlord?.user?.email || 'N/A'}</span>
                     </p>
+                    {landlord?.user?.address && (
+                      <p className="flex justify-between gap-4">
+                        <span className="text-zinc-500 shrink-0">Address:</span>
+                        <span className="text-white text-right font-medium leading-normal">{landlord.user.address}</span>
+                      </p>
+                    )}
                     <p className="flex justify-between">
-                      <span className="text-zinc-500">UPI VPA:</span>
-                      <span className="text-purple-400 font-mono">{landlord?.upiId || 'Not configured'}</span>
+                      <span className="text-zinc-500">Business UPI:</span>
+                      <span className="text-purple-400 font-mono font-bold">{landlord?.upiId || 'Not configured'}</span>
                     </p>
                   </div>
                 </div>
@@ -806,143 +925,88 @@ export default function TenantDashboard() {
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Left: QR Display & Intent */}
-                    <div className="flex flex-col items-center justify-start p-6 bg-black/40 rounded-xl border border-white/5 text-center gap-3">
-                      {/* Razorpay Instant Checkout */}
-                      <div className="w-full border-b border-white/5 pb-4">
-                        <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest block mb-2">⚡ RECOMMENDED PAYMENT METHOD</span>
+                    {/* Left Column: Invoice Summary */}
+                    <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3 text-xs text-zinc-300 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-extrabold text-white mb-3 uppercase text-xs tracking-wider text-purple-400 border-b border-white/10 pb-2">
+                          📋 Invoice Summary ({selectedInvoice.billingMonth})
+                        </h4>
+                        <div className="space-y-2 text-xs">
+                          <p className="flex justify-between"><span>Base Rent:</span><span className="text-white font-semibold">₹{selectedInvoice.baseRent.toLocaleString('en-IN')}</span></p>
+                          {selectedInvoice.securityDeposit > 0 && (
+                            <p className="flex justify-between animate-fade-in-up"><span>Security Deposit:</span><span className="text-white font-semibold">₹{selectedInvoice.securityDeposit.toLocaleString('en-IN')}</span></p>
+                          )}
+                          <p className="flex justify-between"><span>Electricity:</span><span className="text-white font-semibold">₹{selectedInvoice.electricity.toLocaleString('en-IN')}</span></p>
+                          {selectedInvoice.water > 0 && (
+                            <p className="flex justify-between animate-fade-in-up"><span>Water Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.water.toLocaleString('en-IN')}</span></p>
+                          )}
+                          {selectedInvoice.motorCharge > 0 && (
+                            <p className="flex justify-between animate-fade-in-up"><span>Motor Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.motorCharge.toLocaleString('en-IN')}</span></p>
+                          )}
+                          {selectedInvoice.internet > 0 && (
+                            <p className="flex justify-between animate-fade-in-up"><span>Internet Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.internet.toLocaleString('en-IN')}</span></p>
+                          )}
+                          {selectedInvoice.cleaning > 0 && (
+                            <p className="flex justify-between animate-fade-in-up"><span>Cleaning Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.cleaning.toLocaleString('en-IN')}</span></p>
+                          )}
+                          {selectedInvoice.otherBills > 0 && (
+                            <p className="flex justify-between"><span>{selectedInvoice.otherBillsNotes || 'Other'}:</span><span className="text-white font-semibold">₹{selectedInvoice.otherBills.toLocaleString('en-IN')}</span></p>
+                          )}
+                          {selectedInvoice.customCharges && Array.isArray(selectedInvoice.customCharges) && selectedInvoice.customCharges.map((bill: any, index: number) => (
+                            <p key={index} className="flex justify-between animate-fade-in-up"><span>{bill.label}:</span><span className="text-white font-semibold">₹{bill.amount.toLocaleString('en-IN')}</span></p>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="border-t border-white/10 pt-3">
+                        <p className="flex justify-between font-extrabold text-base text-purple-400">
+                          <span>Total Payable Amount:</span>
+                          <span>₹{selectedInvoice.totalAmount.toLocaleString('en-IN')}</span>
+                        </p>
+                        <p className="text-[10px] text-zinc-500 mt-1">Due Date: {new Date(selectedInvoice.dueDate).toLocaleDateString('en-IN')}</p>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Razorpay Instant Payment */}
+                    <div className="flex flex-col justify-between p-6 bg-black/40 rounded-2xl border border-white/5 space-y-4">
+                      <div className="space-y-3">
+                        <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest block">⚡ INSTANT ONLINE PAYMENT</span>
+                        <h4 className="text-lg font-bold text-white">Pay via Razorpay Secure Gateway</h4>
+                        <p className="text-xs text-zinc-400 leading-relaxed">
+                          Complete your rent payment instantly. Payment is automatically verified, and a computer-generated digital receipt is issued immediately to your account.
+                        </p>
+
+                        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs space-y-1.5 text-zinc-300">
+                          <p className="font-bold text-purple-300">Supported Payment Options:</p>
+                          <ul className="text-[11px] space-y-1 text-zinc-400 list-disc pl-4">
+                            <li><strong>UPI:</strong> GPay, PhonePe, Paytm, BHIM, Cred</li>
+                            <li><strong>Cards:</strong> Debit Card, Credit Card (Visa, Mastercard, RuPay)</li>
+                            <li><strong>Banking:</strong> Netbanking (50+ Banks), Mobile Wallets</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div>
                         <button
                           type="button"
                           onClick={handleRazorpayPayment}
                           disabled={processingOnline}
-                          className="glow-btn w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold rounded-xl text-sm flex items-center justify-center gap-1.5 shadow shadow-purple-500/20 cursor-pointer transition-all"
+                          className="glow-btn w-full py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900/50 text-white font-extrabold rounded-xl text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-500/25 cursor-pointer transition-all"
                         >
                           {processingOnline ? (
                             <>
-                              <Loader2 className="w-4 h-4 animate-spin" /> Processing...
+                              <Loader2 className="w-5 h-5 animate-spin" /> Processing Payment Gateway...
                             </>
                           ) : (
                             <>
-                              <ArrowUpRight className="w-4 h-4" /> Pay Instantly with Razorpay
+                              <ArrowUpRight className="w-5 h-5" /> Pay ₹{selectedInvoice.totalAmount.toLocaleString('en-IN')} Now
                             </>
                           )}
                         </button>
-                        <p className="text-[10px] text-zinc-500 mt-1.5 leading-relaxed">Supports UPI, Debit/Credit Cards, Wallets, and Netbanking (Instant Receipt)</p>
+                        <span className="text-[10px] text-zinc-500 block text-center mt-2">🔒 256-bit Encrypted SSL Gateway</span>
                       </div>
-
-                      {(!landlord?.upiId || !landlord?.upiName) ? (
-                        <div className="w-full p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 text-left text-xs text-zinc-500">
-                          <p className="font-semibold text-zinc-400">Manual Scanner Transfers Disabled</p>
-                          <p className="mt-1">Landlord has not configured their personal UPI VPA for direct scanning. Please use Razorpay above.</p>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="text-[10px] font-bold text-zinc-550 uppercase tracking-widest mt-2">Or Scan UPI QR Code (Manual Verification)</span>
-                          
-                          <div className="p-3 bg-white rounded-2xl mb-4 w-52 h-52 flex items-center justify-center shadow-lg">
-                            <img
-                              src={
-                                landlord.upiQrCode ||
-                                `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                                  getDynamicUpiString(landlord.upiId, landlord.upiName, selectedInvoice.totalAmount)
-                                )}`
-                              }
-                              alt="Scan to Pay QR"
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-
-                          <p className="text-xs text-zinc-400 mb-2">Merchant Name: <span className="font-semibold text-white">{landlord.upiName}</span></p>
-                          
-                          <div className="flex items-center gap-1.5 bg-zinc-950 border border-zinc-800 p-2 rounded-lg text-xs w-full max-w-xs mb-4">
-                            <span className="font-mono text-purple-400 flex-1 truncate select-all">{landlord.upiId}</span>
-                            <button
-                              onClick={() => copyToClipboard(landlord.upiId)}
-                              className="p-1 text-zinc-500 hover:text-white"
-                            >
-                              {copiedText === landlord.upiId ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-                          </div>
-
-                          {/* UPI Intent Button */}
-                          <a
-                            href={getDynamicUpiString(landlord.upiId, landlord.upiName, selectedInvoice.totalAmount)}
-                            className="glow-btn w-full max-w-xs py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow"
-                          >
-                          </a>
-                        </>
-                      )}
                     </div>
-
-                      {/* Right: Submit Proof Form */}
-                      <form onSubmit={handleSubmitPaymentProof} className="space-y-4 flex flex-col justify-between">
-                        <div className="space-y-4">
-                          <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-1.5 text-xs text-zinc-300">
-                            <h4 className="font-bold text-white mb-2 uppercase text-[10px] tracking-wider text-purple-400">Invoice Summary</h4>
-                            <p className="flex justify-between"><span>Base Rent:</span><span className="text-white font-semibold">₹{selectedInvoice.baseRent}</span></p>
-                            {selectedInvoice.securityDeposit > 0 && (
-                              <p className="flex justify-between animate-fade-in-up"><span>Security Deposit:</span><span className="text-white font-semibold">₹{selectedInvoice.securityDeposit}</span></p>
-                            )}
-                            <p className="flex justify-between"><span>Electricity:</span><span className="text-white font-semibold">₹{selectedInvoice.electricity}</span></p>
-                            {selectedInvoice.water > 0 && (
-                              <p className="flex justify-between animate-fade-in-up"><span>Water:</span><span className="text-white font-semibold">₹{selectedInvoice.water}</span></p>
-                            )}
-                            {selectedInvoice.motorCharge > 0 && (
-                              <p className="flex justify-between animate-fade-in-up"><span>Motor Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.motorCharge}</span></p>
-                            )}
-                            {selectedInvoice.internet > 0 && (
-                              <p className="flex justify-between animate-fade-in-up"><span>Internet Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.internet}</span></p>
-                            )}
-                            {selectedInvoice.cleaning > 0 && (
-                              <p className="flex justify-between animate-fade-in-up"><span>Cleaning Charge:</span><span className="text-white font-semibold">₹{selectedInvoice.cleaning}</span></p>
-                            )}
-                            {selectedInvoice.otherBills > 0 && (
-                              <p className="flex justify-between"><span>{selectedInvoice.otherBillsNotes || 'Other'}:</span><span className="text-white font-semibold">₹{selectedInvoice.otherBills}</span></p>
-                            )}
-                            {selectedInvoice.customCharges && Array.isArray(selectedInvoice.customCharges) && selectedInvoice.customCharges.map((bill: any, index: number) => (
-                              <p key={index} className="flex justify-between animate-fade-in-up"><span>{bill.label}:</span><span className="text-white font-semibold">₹{bill.amount}</span></p>
-                            ))}
-                            <p className="flex justify-between border-t border-white/5 pt-2 font-bold text-sm text-purple-400">
-                              <span>Total Amount:</span><span>₹{selectedInvoice.totalAmount}</span>
-                            </p>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-zinc-400 mb-1.5">
-                              UPI Transaction ID (UTR Ref Number)
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              value={transactionId}
-                              onChange={(e) => setTransactionId(e.target.value)}
-                              placeholder="e.g. 612847192749 (12-digit number)"
-                              className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder-zinc-550 focus:outline-none focus:border-purple-550 text-sm font-mono"
-                            />
-                          </div>
-
-
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={submittingPayment}
-                          className="glow-btn w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800/50 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5 cursor-pointer mt-4"
-                        >
-                          {submittingPayment ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
-                            </>
-                          ) : (
-                            'Submit Payment Proof'
-                          )}
-                        </button>
-                      </form>
-                    </div>
+                  </div>
                   </div>
                 )}
 

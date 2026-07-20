@@ -68,7 +68,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-zinc-300 mb-1.5" htmlFor="email">
-                Email Address
+                Email Address or Phone Number
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
@@ -76,11 +76,11 @@ export default function LoginPage() {
                 </div>
                 <input
                   id="email"
-                  type="email"
+                  type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="name@example.com or 9876543210"
                   className="w-full pl-11 pr-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
                 />
               </div>
