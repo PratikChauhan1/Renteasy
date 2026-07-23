@@ -7,12 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 /**
  * POST /api/auth/google-complete
  *
- * Called after a new Google OAuth user has selected their role on the
- * register page. Creates the User row + role profile, then issues a JWT.
+ * Two cases:
+ * 1. NEW Google user — created after selecting a role on the register page.
+ * 2. CROSS-ROLE — existing user adding a second role (crossRole: true flag).
+ *    e.g. an Owner who also wants to register as a Resident.
  */
 export async function POST(request: Request) {
   try {
-    const { email, name, role, avatarUrl } = await request.json();
+    const { email, name, role, crossRole } = await request.json();
 
     if (!email || !name || !role) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
@@ -24,19 +26,76 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Double-check the user doesn't already exist
+    // ── Check if user already exists ──────────────────────────────────────────
     const { data: existingUser } = await supabaseAdmin
       .from('User')
-      .select('id, role')
+      .select('id, role, email, name')
       .eq('email', normalizedEmail)
       .single();
 
     if (existingUser) {
-      // Already registered — just issue a token
+      const existingRole = existingUser.role as 'OWNER' | 'TENANT';
+
+      // Same role → just issue a token (no action needed)
+      if (existingRole === role) {
+        const token = signToken({
+          userId: existingUser.id,
+          email: normalizedEmail,
+          role: existingRole,
+        });
+
+        const cookieStore = await cookies();
+        cookieStore.set('RentEasy_token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
+
+        return NextResponse.json({ message: 'Signed in successfully.', alreadyExists: true });
+      }
+
+      // ── Cross-role: add the opposite role profile ─────────────────────────
+      if (role === 'OWNER') {
+        // Check if OwnerProfile already exists
+        const { data: existingOwner } = await supabaseAdmin
+          .from('OwnerProfile')
+          .select('id')
+          .eq('userId', existingUser.id)
+          .single();
+
+        if (existingOwner) {
+          return NextResponse.json(
+            { error: 'You already have a Landlord/Owner profile with this Google account.' },
+            { status: 400 }
+          );
+        }
+
+        await supabaseAdmin.from('OwnerProfile').insert({ id: uuidv4(), userId: existingUser.id });
+      } else {
+        // Check if TenantProfile already exists
+        const { data: existingTenant } = await supabaseAdmin
+          .from('TenantProfile')
+          .select('id')
+          .eq('userId', existingUser.id)
+          .single();
+
+        if (existingTenant) {
+          return NextResponse.json(
+            { error: 'You already have a Resident/Tenant profile with this Google account.' },
+            { status: 400 }
+          );
+        }
+
+        await supabaseAdmin.from('TenantProfile').insert({ id: uuidv4(), userId: existingUser.id });
+      }
+
+      // Issue JWT for the newly-added role
       const token = signToken({
         userId: existingUser.id,
         email: normalizedEmail,
-        role: existingUser.role as 'OWNER' | 'TENANT',
+        role, // the new role
       });
 
       const cookieStore = await cookies();
@@ -48,10 +107,14 @@ export async function POST(request: Request) {
         path: '/',
       });
 
-      return NextResponse.json({ message: 'Logged in', alreadyExists: true });
+      const roleName = role === 'OWNER' ? 'Landlord/Owner' : 'Resident/Tenant';
+      return NextResponse.json({
+        message: `${roleName} profile added to your Google account successfully.`,
+        crossRole: true,
+      });
     }
 
-    // Create User — no password needed for OAuth users (set a random unusable hash)
+    // ── Brand-new Google user: create User + role profile ────────────────────
     const userId = uuidv4();
 
     const { data: createdUser, error: userErr } = await supabaseAdmin
@@ -59,11 +122,10 @@ export async function POST(request: Request) {
       .insert({
         id: userId,
         email: normalizedEmail,
-        password: '$google-oauth$', // non-bcrypt placeholder — can never be used to log in via password
+        password: '$google-oauth$', // non-bcrypt placeholder — cannot log in via password
         name: name.trim(),
         phone: null,
         role,
-        avatarUrl: avatarUrl || null,
       })
       .select()
       .single();
@@ -82,7 +144,7 @@ export async function POST(request: Request) {
       await supabaseAdmin.from('TenantProfile').insert({ id: uuidv4(), userId });
     }
 
-    // Issue JWT cookie
+    // Issue JWT
     const token = signToken({ userId, email: normalizedEmail, role });
 
     const cookieStore = await cookies();
@@ -96,7 +158,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: 'Google account registered successfully.' }, { status: 201 });
   } catch (error: any) {
-    console.error('Google complete error:', error);
+    console.error('[google-complete] Error:', error);
     return NextResponse.json({ error: 'Server error: ' + error.message }, { status: 500 });
   }
 }

@@ -46,9 +46,11 @@ export default function AuthSlider({ initialMode = 'signin' }: AuthSliderProps) 
       setLoginSuccess('Account created! Please sign in to continue.');
     }
     const errParam = searchParams.get('error');
-    if (errParam === 'oauth_failed') setLoginError('Google sign-in failed. Please try again.');
-    if (errParam === 'oauth_no_code') setLoginError('Google authentication was cancelled.');
-    if (errParam === 'no_email') setLoginError('Could not retrieve email from Google.');
+    if (errParam) {
+      if (errParam === 'oauth_failed') setLoginError('Google sign-in failed. Please try again.');
+      else if (errParam === 'oauth_no_code') setLoginError('Google authentication was cancelled.');
+      else setLoginError(decodeURIComponent(errParam));
+    }
 
     // Google OAuth redirect flow check
     const isGoogle = searchParams.get('google') === 'true';
@@ -221,7 +223,7 @@ export default function AuthSlider({ initialMode = 'signin' }: AuthSliderProps) 
 
             {/* Google Auth button */}
             <div className="flex justify-center mb-4">
-              <GoogleSignInButton label="Continue with Google" iconOnly />
+              <GoogleSignInButton label="Continue with Google" iconOnly intent="signin" />
             </div>
 
             <p className="text-xs sm:text-sm text-center text-zinc-400 font-medium mb-6">
@@ -349,7 +351,8 @@ export default function AuthSlider({ initialMode = 'signin' }: AuthSliderProps) 
               <>
                 {/* Only Google Auth as social signup */}
                 <div className="flex justify-center mb-3">
-                  <GoogleSignInButton label="Sign up with Google" iconOnly />
+                  {/* intent='signup' + intendedRole tells the callback to do cross-role if user already exists with different role */}
+                  <GoogleSignInButton label="Sign up with Google" iconOnly intent="signup" intendedRole={role} />
                 </div>
 
                 <p className="text-xs sm:text-sm text-center text-zinc-400 font-medium mb-4">
