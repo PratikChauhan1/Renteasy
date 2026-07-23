@@ -18,17 +18,56 @@ export async function POST(request: Request) {
     const normalizedPhone = phone ? cleanPhone(phone) : null;
 
     // 2. Check if email already exists
-    const { data: existingEmail } = await supabaseAdmin
+    const { data: existingUser } = await supabaseAdmin
       .from('User')
-      .select('id')
+      .select('id, role')
       .eq('email', normalizedEmail)
       .single();
 
-    if (existingEmail) {
-      return NextResponse.json({ error: 'An account with this email address already exists.' }, { status: 400 });
+    if (existingUser) {
+      // --- Cross-role registration logic ---
+      if (existingUser.role === role) {
+        // Same role → reject (already registered as this role)
+        const roleName = role === 'OWNER' ? 'Landlord/Owner' : 'Resident/Tenant';
+        return NextResponse.json({
+          error: `An account is already registered as ${roleName} with this email. Please sign in instead.`
+        }, { status: 400 });
+      }
+
+      // Different role → add the other role profile to existing user
+      const existingUserId = existingUser.id;
+
+      if (role === 'OWNER') {
+        // Check if they already have an owner profile
+        const { data: existingOwner } = await supabaseAdmin
+          .from('OwnerProfile')
+          .select('id')
+          .eq('userId', existingUserId)
+          .single();
+        if (existingOwner) {
+          return NextResponse.json({ error: 'You already have a Landlord profile with this email.' }, { status: 400 });
+        }
+        await supabaseAdmin.from('OwnerProfile').insert({ id: uuidv4(), userId: existingUserId });
+      } else {
+        // Check if they already have a tenant profile
+        const { data: existingTenant } = await supabaseAdmin
+          .from('TenantProfile')
+          .select('id')
+          .eq('userId', existingUserId)
+          .single();
+        if (existingTenant) {
+          return NextResponse.json({ error: 'You already have a Resident profile with this email.' }, { status: 400 });
+        }
+        await supabaseAdmin.from('TenantProfile').insert({ id: uuidv4(), userId: existingUserId });
+      }
+
+      return NextResponse.json({
+        message: `${role === 'OWNER' ? 'Landlord' : 'Resident'} profile added to your existing account successfully.`,
+        crossRole: true
+      }, { status: 201 });
     }
 
-    // 3. Check if phone already exists (if phone provided)
+    // 3. Check if phone already exists (for fresh registrations)
     if (normalizedPhone) {
       const { data: existingPhone } = await supabaseAdmin
         .from('User')
@@ -76,4 +115,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'An error occurred during registration: ' + error.message }, { status: 500 });
   }
 }
-

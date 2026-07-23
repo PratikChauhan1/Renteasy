@@ -73,7 +73,11 @@ export function validateUserRegistration(data: {
     return { valid: false, error: 'Please enter a valid email address (e.g. user@example.com).' };
   }
 
-  if (phone && phone.trim().length > 0 && !isValidPhone(phone)) {
+  if (!phone || phone.trim().length === 0) {
+    return { valid: false, error: 'Mobile number is required. Please enter your 10-digit mobile number.' };
+  }
+
+  if (!isValidPhone(phone)) {
     return { valid: false, error: 'Please enter a valid 10-digit mobile number starting with 6-9.' };
   }
 
